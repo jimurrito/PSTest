@@ -13,7 +13,7 @@ class TestFunctAttribute : System.Attribute {
 #
 # This would be the test function
 function Test-Function {
-    [TestFunctAttribute(IArgs = ("hello", "world"))]
+    [TestFunct(IArgs=("hello", "world"))]
     param(
         [string]$var1,
         [string]$var2
@@ -24,7 +24,7 @@ function Test-Function {
 #
 # Simplied way of validating
 $func = get-command -name Test-Function
-$InArgs = $func.ScriptBlock.Attributes.IArgs
-
-Invoke-Expression ("$func {0} {1}" -f $InArgs)
+$InArgs = $func.ScriptBlock.Attributes
+$InArgs
+#Invoke-Expression ("$func {0} {1}" -f $InArgs)
 
