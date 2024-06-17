@@ -46,12 +46,12 @@ $TestBlock = {
                 return Invoke-Expression $TestExpression
             }
             catch {
-                <#Do this if a terminating exception happens#>
+                return $_ | ConvertTo-Json
             }
         }
 
         
-        return $result
+        return ($func.Name + " => " +  ($result -join " ; "))
     }
     
     
@@ -65,9 +65,9 @@ $TestBlock = {
 #
 # Execute test(s)
 #$Modules2Test[0] | ForEach-Object { (Invoke-Command $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
-$Modules2Test | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
+$output = $Modules2Test[0] | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
 #
-
+$output
 
 
 

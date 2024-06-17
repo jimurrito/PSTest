@@ -24,3 +24,12 @@ function Test-Function3 {
     )
     return "$var1 $var2!"
 }
+
+function Test-FunctionFail {
+    [TestFunc(("Planned-Failure"))]
+    param(
+        [string]$var1,
+        [string]$var2
+    )
+    throw "Test-Failure"
+}
