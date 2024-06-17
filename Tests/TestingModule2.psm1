@@ -11,7 +11,7 @@ function Test-Function2 {
         [string]$var1,
         [string]$var2
     )
-    Write-Host "$var1 $var2!"
+    return "$var1 $var2!"
 }
 
 function Test-Function3 {
@@ -22,14 +22,5 @@ function Test-Function3 {
         [string]$var1,
         [string]$var2
     )
-    Write-Host "$var1 $var2!"
+    return "$var1 $var2!"
 }
-
-
-
-<#
-# Simplied way of validating
-$func = get-command -name Test-Function
-$InArgs = $func.ScriptBlock.Attributes.IArgs
-Invoke-Expression ("$func {0} {1}" -f $InArgs)
-#>

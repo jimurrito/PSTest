@@ -10,7 +10,7 @@ function Test-Function {
         [string]$var1,
         [string]$var2
     )
-    Write-Host "$var1 $var2!"
+    return "$var1 $var2!"
 }
 
 function Test-FunctionDouble {
@@ -20,7 +20,7 @@ function Test-FunctionDouble {
         [string]$var1,
         [string]$var2
     )
-    Write-Host "$var1 $var2!"
+    return "$var1 $var2!"
 }
 
 <#
