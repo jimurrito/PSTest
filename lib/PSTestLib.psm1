@@ -3,11 +3,11 @@
     A class that represents a test function attribute.
 
 .DESCRIPTION
-    The TestFuncAttribute class extends the System.Attribute class and includes three properties: IArgs and Assert. 
+    The PSTestAttribute class extends the System.Attribute class and includes three properties: IArgs and Assert. 
     It also includes three constructors.
 
 .CLASS
-    TestFuncAttribute
+    PSTestAttribute
 
 .PROPERTY
     IArgs
@@ -18,34 +18,34 @@
     An assertion for the function to be tested.
 
 .CONSTRUCTOR
-    TestFuncAttribute()
+    PSTestAttribute()
     A constructor that takes no arguments.
 
 .CONSTRUCTOR
-    TestFuncAttribute($IArgs)
+    PSTestAttribute($IArgs)
     A constructor that takes an array of input arguments for the function to be tested.
 
 .CONSTRUCTOR
-    TestFuncAttribute($IArgs, $Assert)
+    PSTestAttribute($IArgs, $Assert)
     A constructor that takes an array of input arguments and an assertion for the function to be tested.
 #>
 
-class TestFuncAttribute : System.Attribute {
+class PSTestAttribute : System.Attribute {
     # An array to hold input arguments for the function to be tested
     $IArgs
-    # An assertion for the function to be tested
+    # A pre-determined result to assertion with the test ouput
     $Assert
 
     # Constructor with no arguments
-    TestFuncAttribute() {}
+    PSTestAttribute() {}
 
     # Constructor with input arguments but no assertion
-    TestFuncAttribute($IArgs) {
+    PSTestAttribute($IArgs) {
         $this.IArgs = $IArgs
     }
 
     # Constructor with both input arguments and assertion
-    TestFuncAttribute($IArgs, $Assert) {
+    PSTestAttribute($IArgs, $Assert) {
         $this.IArgs = $IArgs
         $this.Assert = $Assert
     }
@@ -58,11 +58,11 @@ class TestFuncAttribute : System.Attribute {
     A class that represents the result of a test function.
 
 .DESCRIPTION
-    The TestFuncResult class has four properties: ResultType, ErrorType, Result, and Test. 
+    The PSTestResult class has four properties: ResultType, ErrorType, Result, and Test. 
     It also includes two constructors and a method to convert the result to a JSON string.
 
 .CLASS
-    TestFuncResult
+    PSTestResult
 
 .PROPERTY
     ResultType
@@ -87,12 +87,12 @@ class TestFuncAttribute : System.Attribute {
     Object that contains the input arguments for the function.
 
 .CONSTRUCTOR
-    TestFuncResult([object]$result, [string]$test)
+    PSTestResult([object]$result, [string]$test)
     A constructor that takes a result object, a test function name, and its arguments. 
     It sets the ResultType to Success.
 
 .CONSTRUCTOR
-    TestFuncResult([ResultType] $resultType, [object]$result, [string]$test, [ErrorType] $ErrorType)
+    PSTestResult([ResultType] $resultType, [object]$result, [string]$test, [ErrorType] $ErrorType)
     A constructor that takes a result type, a result object, a test function name, and an error type, 
     and sets the corresponding properties.
 
@@ -110,20 +110,20 @@ class TestFuncAttribute : System.Attribute {
 #>
 
 
-class TestFuncResult {
+class PSTestResult {
     [string] $TestFn; # the function that was ran
     [object] $TestArgs
     [object] $Result;
     [ResultType] $ResultType = [ResultType]::Success;
 
     # default (Success + message + test)
-    TestFuncResult([object]$result, [string]$testfn, [object] $testArgs) {
+    PSTestResult([object]$result, [string]$testfn, [object] $testArgs) {
         $this.Result = $result;
         $this.TestFn = $testfn;
         $this.TestArgs = $testArgs;
     }
     # Full
-    TestFuncResult([ResultType] $resultType, [object]$result, [string]$testfn, [object] $testArgs) {
+    PSTestResult([ResultType] $resultType, [object]$result, [string]$testfn, [object] $testArgs) {
         $this.Result = $result;
         $this.ResultType = $resultType;
         $this.TestFn = $testfn;

@@ -3,8 +3,7 @@ Import-Module "$PSScriptRoot\..\PSTest.psd1"
 #
 # Test Function
 function Test-Function2 {
-    # The Presence of this attribute will trigger PSTest to run the job.
-    [TestFunc(("hello2", "world2"))]
+    [PSTest(("hello2", "world2"))]
     param(
         [string]$var1,
         [string]$var2
@@ -14,7 +13,7 @@ function Test-Function2 {
 
 function Test-FunctionIgnore {
     # This function will be ignored
-    # [TestFunc(("Second", "Test"))]
+    # [PSTest(("Second", "Test"))]
     param(
         [string]$var1,
         [string]$var2
@@ -23,10 +22,10 @@ function Test-FunctionIgnore {
 }
 
 function Test-FunctionFail {
-    [TestFunc()]
+    [PSTest()]
     param(
         [string]$var1,
         [string]$var2
     )
-    throw "Test-Failure"
+    throw "Test-Failure-Output"
 }
