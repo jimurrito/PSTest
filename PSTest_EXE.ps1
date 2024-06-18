@@ -5,13 +5,15 @@ param(
     # Only functions that have the TestFunc() attribute will be evaluated
     $TestPath = ".\Tests\",
     $LibPath = ".\PSTest.psd1",
-    $TestAttributeName = "TestFuncAttribute"
+    $TestAttributeName = "TestFuncAttribute",
+    [bool]$FullDump = $false
 )
+#
+# Import testlib obj
+. ([scriptblock]::create("using module $libPath"))
 # 
 # generate stop watch for execution timing
 $Timer = [System.Diagnostics.Stopwatch]::StartNew()
-
-
 #
 #
 # get powershell modules in the path
@@ -35,22 +37,24 @@ $TestBlock = {
     $funcs = get-module | Foreach-Object { 
         Get-Command -Module $_ | Where-Object { $_.ScriptBlock.Attributes.TypeId.name -eq $TestAtt } 
     }
+    #
     # Iterate all in-scope functions - testing each one
-    $ModuleResults = $funcs | ForEach-Object {
+    # Full single module output - reps all tests in a single module file - use `$ModuleResults`
+    return $funcs | ForEach-Object {
         #
         $func = $_
         # get attributes - filters out attributes from other sources
         $AttVals = $func.ScriptBlock.Attributes | where-object { $_.TypeId.name -eq $TestAtt }
+        #
         # Each iteration of $AttVals is its own test.
-        $FuncResults = $AttVals | ForEach-Object { 
+        # Results from all test permuations of a single function
+        return $AttVals | ForEach-Object { 
             #
             # input args remap - needed to splatter the array of variables
             $InputArgs = $_.IArgs;
             # create result
-            $SingleTestResult = 
-            #
-            # Test catch
-            try {
+            # Test Job return - represents a single test
+            $PermuationResult = try {
                 # invoke test
                 #$result = & $func.Name @InputArgs
                 return [TestFuncResult]::new(
@@ -68,16 +72,12 @@ $TestBlock = {
                 )
             }
             #
-            # Test Job return - represents a single test - use `$SingleTestResult`
-            return $SingleTestResult
+            #
+            # Test Job return - represents a single test - return on try/catch does not work in PS
+            return $PermuationResult
         }
-        #
-        # Results from all test permuations of a single function -  use `$FuncResults`
-        return $FuncResults
-    }   
-    #
-    # Full single module output - reps all tests in a single module file - use `$ModuleResults`
-    return $ModuleResults
+    }
+    # end of scriptblock
 }
 #
 #
@@ -86,18 +86,21 @@ $TestBlock = {
 $FinalOutput = $Modules2Test | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
 #
 # Output of ALL tests ran for all modules
-$FinalOutput
+if ($FullDump) { Write-Output "`nFull Dump:" $FinalOutput }
 #
-# Stat output
-#
+# [Stat output]
 #
 # Stop the stopwatch; capture output.
-$Timer.Stop(); $Runtime =  $Timer.Elapsed
+$Timer.Stop(); $Runtime = $Timer.Elapsed
 #
-#
+# Count number that were successful
+$SuccCount = ($FinalOutput | Where-Object { $_.ResultType -eq [ResultType]::Success }).Count
+$FailCount = $FinalOutput.Count - $SuccCount
 
-
-
+Write-Output (
+    "`nSuccess: $SuccCount | Failure: $FailCount | Total: {0} | Runtime: ({1})s ({2})ms`n" -f 
+    $FinalOutput.Count, $Runtime.Seconds, $Runtime.Milliseconds 
+)
 
 
 
