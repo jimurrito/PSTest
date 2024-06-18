@@ -7,6 +7,11 @@ param(
     $LibPath = ".\PSTest.psd1",
     $TestAttributeName = "TestFuncAttribute"
 )
+# 
+# generate stop watch for execution timing
+$Timer = [System.Diagnostics.Stopwatch]::StartNew()
+
+
 #
 #
 # get powershell modules in the path
@@ -31,43 +36,66 @@ $TestBlock = {
         Get-Command -Module $_ | Where-Object { $_.ScriptBlock.Attributes.TypeId.name -eq $TestAtt } 
     }
     # Iterate all in-scope functions - testing each one
-    $FuncResults = $funcs | ForEach-Object {
+    $ModuleResults = $funcs | ForEach-Object {
         #
         $func = $_
         # get attributes - filters out attributes from other sources
         $AttVals = $func.ScriptBlock.Attributes | where-object { $_.TypeId.name -eq $TestAtt }
         # Each iteration of $AttVals is its own test.
-        $result = $AttVals | ForEach-Object { 
+        $FuncResults = $AttVals | ForEach-Object { 
+            #
+            # input args remap - needed to splatter the array of variables
+            $InputArgs = $_.IArgs;
+            # create result
+            $SingleTestResult = 
             #
             # Test catch
             try {
-                #Write-Host $func
-                $TestExpression = $func.Name + " " + $_.IArgs
-                return Invoke-Expression $TestExpression
+                # invoke test
+                #$result = & $func.Name @InputArgs
+                return [TestFuncResult]::new(
+                    (& $func.Name @InputArgs), 
+                    $func.Name, 
+                    $InputArgs
+                )
             }
             catch {
-                return $_ | ConvertTo-Json
+                return [TestFuncResult]::new(
+                    [ResultType]::ExceptionError, 
+                    $_, 
+                    $func.Name, 
+                    $InputArgs
+                )
             }
+            #
+            # Test Job return - represents a single test - use `$SingleTestResult`
+            return $SingleTestResult
         }
-
-        
-        return ($func.Name + " => " +  ($result -join " ; "))
-    }
-    
-    
-    
-    
-    
+        #
+        # Results from all test permuations of a single function -  use `$FuncResults`
+        return $FuncResults
+    }   
     #
-    return $FuncResults
+    # Full single module output - reps all tests in a single module file - use `$ModuleResults`
+    return $ModuleResults
 }
 #
 #
 # Execute test(s)
 #$Modules2Test[0] | ForEach-Object { (Invoke-Command $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
-$output = $Modules2Test[0] | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
+$FinalOutput = $Modules2Test | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
 #
-$output
+# Output of ALL tests ran for all modules
+$FinalOutput
+#
+# Stat output
+#
+#
+# Stop the stopwatch; capture output.
+$Timer.Stop(); $Runtime =  $Timer.Elapsed
+#
+#
+
 
 
 

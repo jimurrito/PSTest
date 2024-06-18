@@ -14,6 +14,7 @@ function Test-Function {
 }
 
 function Test-FunctionDouble {
+    # each instance here should be its own test
     [TestFunc(("double", "Test1"))]
     [TestFunc(("double", "Test2"))]
     param(
@@ -22,10 +23,3 @@ function Test-FunctionDouble {
     )
     return "$var1 $var2!"
 }
-
-<#
-# Simplied way of validating
-$func = get-command -name Test-Function
-$InArgs = $func.ScriptBlock.Attributes.IArgs
-Invoke-Expression ("$func {0} {1}" -f $InArgs)
-#>
