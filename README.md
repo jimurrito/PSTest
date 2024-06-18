@@ -27,6 +27,10 @@ function Test-Function {
 }
 ```
 
+> **Note**
+> These attribute calls will fail without using the `using` macro in powershell.
+> `using module PSTest` is the easiest way to import the classes into your current powershell session. This needs to be put at the very top of your script or module.
+
 Each instance of this attribute, is it's own isolated tested. **This means multiple declarations of the attribute, for multiple tests of the same function, are encouraged**. Here is an example of doing the second declaration.
 
 ```Powershell
@@ -112,10 +116,10 @@ PS C:\PSTest> $FailResult.Result | ConvertTo-Json
 
 {
   "Exception": {
-    "ErrorRecord": "Test-Failure",
+    "ErrorRecord": "Test-Failure-Output",
     "WasThrownFromThrowStatement": true,
     "TargetSite": null,
-    "Message": "Test-Failure",
+    "Message": "Test-Failure-Output",
     "Data": {},
     "InnerException": null,
     "HelpLink": null,
@@ -129,9 +133,28 @@ PS C:\PSTest> $FailResult.Result | ConvertTo-Json
 
 More information on how to parse this output can be found in the class description for [`PSTestResult`](lib/PSTestLib.psm1).
 
+### Optional parameters for `PSTest_EXE.ps1`
+
+#### `-FullDump` << [bool]
+This will output the full set of test results to the pipeline. Without it, only the summary output will be provided. This switch is required if you want to parse the full output of the test.
+
+#### `-TestPath` << [string]
+This will be the path to the directory holding the target modules.
+
+#### `-LibPath` << [string]
+This is the path to `PSTest.psd1`. Errors will occur if you modify this.
+
+#### `-TestAttributeName` << [string]
+This is the attribute that PSTest_exe.ps1 will be looking for on functions. Functions mayb not validate as expected if you change this value.
+
+#### `-TestExtensions` << [string]
+This will filter what files are checked for `[PSTest()]` attribute.
+You will need to define the input as a pattern. The default extension is `*.psm1`. However, if the target needed to be a script file, `*.ps1`. This can be used to your advantage if you only want to test one file. Instead of a patter, just provide the fully qualified path to the file. Example: `-TestExtension /path/to/test.psm1`.
+
 ## Upcomming changes
 
 - Parallel Test execution.
 - Backwards compatibility for Legacy Powershell (< 5.1) and .Net Framework (< 4.0).
 - Test-Stepping; blocks moving to a next test until the user confirms in the console.
 - Adding PSTest package to Nuget repo.
+- Option to add this to the system PATH to allow for seamless use across the whole system.
