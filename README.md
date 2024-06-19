@@ -11,11 +11,11 @@ This framework has two components:
 
 More in-depth information on this flow will be explained below.
 
-## Installing PSTest
+## Setting up PSTest
 > PowerShell Gallery method will add the script and an alias to your PATH variable.
 - **PowerShell Gallery/Nuget**
+  - `install-module PSTestLib`
   - `install-script PSTestX`
-  - This should also install/import PSTestLib
 
 - **Git**
   - `git clone https://github.com/jimurrito/PSTest`
