@@ -28,13 +28,20 @@
 .CONSTRUCTOR
     PSTestAttribute($IArgs, $Assert)
     A constructor that takes an array of input arguments and an assertion for the function to be tested.
+
+.CONSTRUCTOR
+    PSTestAttribute($IArgs, $Assert, $AssertVar)
+    A constructor that takes an array of input arguments and an assertion for the function to be tested.
+
 #>
 
 class PSTestAttribute : System.Attribute {
     # An array to hold input arguments for the function to be tested
     $IArgs
-    # A pre-determined result to assertion with the test ouput
-    $Assert
+    # Script block containing an assertion statement
+    [scriptblock]$Assert
+    # Option to set a custom var
+    [string]$AssertVar = '$r'
 
     # Constructor with no arguments
     PSTestAttribute() {}
@@ -48,6 +55,12 @@ class PSTestAttribute : System.Attribute {
     PSTestAttribute($IArgs, $Assert) {
         $this.IArgs = $IArgs
         $this.Assert = $Assert
+    }
+    # Constructor with all input arguments
+    PSTestAttribute($IArgs, $Assert, $AssertVar) {
+        $this.IArgs = $IArgs
+        $this.Assert = $Assert
+        $this.AssertVar = $AssertVar
     }
 }
 
@@ -104,9 +117,6 @@ class PSTestAttribute : System.Attribute {
     ResultType
     An enum that represents the type of result. It can be either Success or Error.
 
-.ENUM
-    ErrorType
-    An enum that represents the type of error. It can be either Assert or Exception.
 #>
 
 

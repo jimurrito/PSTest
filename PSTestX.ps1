@@ -1,3 +1,34 @@
+<#PSScriptInfo
+
+.VERSION 1.2024061803
+
+.GUID a1626141-f76e-4301-8ec3-d03f6bfd4d2f
+
+.AUTHOR Jimurrito
+
+.COMPANYNAME Virtrillo Software Solutions
+
+.COPYRIGHT (c) 2024 Jimurrito. All rights reserved.
+
+.TAGS Testing Framework Unit-testing Assertion-testing Assertion cmdlet-testing function-testing
+
+.LICENSEURI https://www.gnu.org/licenses/gpl-3.0.en.html
+
+.PROJECTURI https://github.com/jimurrito/PSTest
+
+.ICONURI
+
+.EXTERNALMODULEDEPENDENCIES PSTestLib
+
+.REQUIREDSCRIPTS
+
+.EXTERNALSCRIPTDEPENDENCIES
+
+.RELEASENOTES https://github.com/jimurrito/PSTest
+
+#>
+
+
 <#
 .SYNOPSIS
     A script to run tests on PowerShell modules.
@@ -8,12 +39,6 @@
 .PARAMETER TestPath
     The path to the directory containing the test modules. The script will attempt to test all modules in this directory. Only functions that have the PSTest() attribute will be evaluated.
 
-.PARAMETER LibPath
-    The path to the PSTest.psd1 library module.
-
-.PARAMETER TestAttributeName
-    The name of the attribute that the script looks for in the functions to be tested.
-
 .PARAMETER FullDump
     A boolean value indicating whether to output all tests run for all modules.
 
@@ -21,35 +46,30 @@
     The file extensions of the modules to be tested.
 
 .EXAMPLE
-    PS C:\> .\YourScript.ps1 -TestPath ".\Tests\" -LibPath ".\PSTest.psd1" -TestAttributeName "PSTestAttribute" -FullDump $false -TestExtensions "*.psm1"
+    PS C:\path\to\PSTest> .\PSTestX.ps1 -TestPath ".\Tests\" -FullDump $true
+    
+    or if installed
 
-.INPUTS
-    None. You cannot pipe objects to YourScript.ps1.
+    PSTestX  -TestPath ".\Tests\" -FullDump $true
 
 .OUTPUTS
-    None. This script does not generate any output.
-
-.NOTES
-    Version:        1.0
-    Author:         James Immer
-    Creation Date:  06/18/2024
-    Purpose/Change: Initial Commit
+    [ResultType] class that can be found in PSTestLib
 #>
-
-
+#
+#Requires -modules PSTestLib
+#
+#
 param(
     # path to the test modules
     # will attempt to test all modules in the dir
     # Only functions that have the PSTest() attribute will be evaluated
-    $TestPath = ".\Tests\",
-    $LibPath = ".\PSTest.psd1",
-    $TestAttributeName = "PSTestAttribute",
+    [string]$TestPath = "$PWD",
     [bool]$FullDump = $false,
-    $TestExtensions = "*.psm1"
+    [string]$TestExtensions = "*.psm1"
 )
+#using module PSTestLib
+try { . ([scriptblock]::create("using module PSTestLib")) } catch { . ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1")) }
 #
-# Import testlib obj
-. ([scriptblock]::create("using module $LibPath"))
 # 
 # generate stop watch for execution timing
 $Timer = [System.Diagnostics.Stopwatch]::StartNew()
@@ -63,13 +83,16 @@ $Modules2Test = Get-ChildItem -Path $TestPath -Filter $TestExtensions -Verbose
 # Ran for each module, in an isolated powershell session
 $TestBlock = {
     #
+    #Requires -modules PSTestLib
+    #
     param(
         [string]$testModPath,
-        [string]$libPath,
         [string]$TestAtt
     )
+    #. ([scriptblock]::create(("using module {0}" -f (Get-module -name "PSTestLib").Path)))
     # Import testlib obj
-    . ([scriptblock]::create("using module $libPath"))
+    try { . ([scriptblock]::create("using module PSTestLib")) } catch { . ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1")) }
+    #. ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1"))
     # Import module that needs to be tested
     Import-Module $testModPath
     # filters all the commands that contain the test class attribute [PSTest()]
@@ -92,13 +115,16 @@ $TestBlock = {
             # input args remap - needed to splatter the array of variables
             $InputArgs = $_.IArgs;
             $Assertion = $_.Assert;
+            $AssertVar = $_.AssertVar;
             #
             # Test Job return - represents a single test
             $PermuationResult = try {
                 # invoke test
                 $TestResult = & $func.Name @InputArgs
+                # Copy to custom var for assert ($r by default)
+                Invoke-Expression ($AssertVar + '= $TestResult')       
                 # Run if block if test should be asserted
-                if ($Assertion -and $TestResult -ne $Assertion ) {
+                if ($Assertion -and !(& $Assertion)) {
                     return [PSTestResult]::new(
                         [ResultType]::AssertionError, 
                         $testresult, 
@@ -134,7 +160,11 @@ $TestBlock = {
 }
 #
 # Execute test(s)
-$FinalOutput = $Modules2Test | ForEach-Object { (pwsh -c $TestBlock -args @($_, $LibPath, $TestAttributeName)) }
+$FinalOutput = $Modules2Test | ForEach-Object { (pwsh -c $TestBlock -args @($_, "PSTestAttribute")) }
+#
+# [FOR TESTING ONLY - Runs in current session instread of new one(s).]
+# $FinalOutput = $Modules2Test | ForEach-Object { (& $TestBlock $_ "PSTestAttribute") }
+#
 #
 # [Stat output]
 #
