@@ -10,7 +10,7 @@
     RootModule        = 'PSTestLib.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '1.0.2024061803'
+    ModuleVersion     = '1.0.20240619'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
