@@ -1,8 +1,8 @@
-Import-Module "$PSScriptRoot\..\PSTest.psd1"
+#Requires -modules PSTestLib
 #
 # Test Functions
 function Test-FunctionAssertSuccess {
-    [PSTest(("hello", "world"),"hello world!")]
+    [PSTest(("hello", "world"),{$r -eq "hello world!"})]
     param(
         [string]$var1,
         [string]$var2
@@ -11,7 +11,7 @@ function Test-FunctionAssertSuccess {
 }
 
 function Test-FunctionAssertFail {
-    [PSTest(("hello", "world"),"hello mars!")]
+    [PSTest(("hello", "world"),{$r -eq "hello mars!"})]
     param(
         [string]$var1,
         [string]$var2

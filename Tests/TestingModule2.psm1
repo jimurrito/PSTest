@@ -1,4 +1,4 @@
-Import-Module "$PSScriptRoot\..\PSTest.psd1"
+#Requires -modules PSTestLib
 
 #
 # Test Function
