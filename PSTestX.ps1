@@ -40,7 +40,7 @@
     The path to the directory containing the test modules. The script will attempt to test all modules in this directory. Only functions that have the PSTest() attribute will be evaluated.
 
 .PARAMETER FullDump
-    A boolean value indicating whether to output all tests run for all modules.
+    A switch value indicating whether to output full test results from the test runs.
 
 .PARAMETER TestExtensions
     The file extensions of the modules to be tested.
@@ -64,10 +64,10 @@ param(
     # will attempt to test all modules in the dir
     # Only functions that have the PSTest() attribute will be evaluated
     [string]$TestPath = "$PWD",
-    [bool]$FullDump = $false,
+    [switch]$FullDump,
     [string]$TestExtensions = "*.psm1"
 )
-#using module PSTestLib
+# using module PSTestLib
 try { . ([scriptblock]::create("using module PSTestLib")) } catch { . ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1")) }
 #
 # 
@@ -89,10 +89,9 @@ $TestBlock = {
         [string]$testModPath,
         [string]$TestAtt
     )
-    #. ([scriptblock]::create(("using module {0}" -f (Get-module -name "PSTestLib").Path)))
     # Import testlib obj
     try { . ([scriptblock]::create("using module PSTestLib")) } catch { . ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1")) }
-    #. ([scriptblock]::create("using module .\PSTestLib\PSTestLib.psd1"))
+    #
     # Import module that needs to be tested
     Import-Module $testModPath
     # filters all the commands that contain the test class attribute [PSTest()]

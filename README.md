@@ -115,11 +115,11 @@ PS C:\PSTest> .\PSTestX -Path .\Tests
 Success: 4 | Failure: 1 | Total: 5 | Runtime: (1)s (118)ms
 ```
 
-This output is helpful, but we can get more information using the `-FullDump $true` parameter.
+This output is helpful, but we can get more information using the `-FullDump` parameter.
 
 
 ```Powershell
-PS C:\PSTest> .\PSTestX -Path .\Tests -FullDump $true
+PS C:\PSTest> .\PSTestX -Path .\Tests -FullDump
 
 Success: 6 | Failure: 2 | Total: 8 | Runtime: (1)s (643)ms
 
@@ -139,7 +139,7 @@ Test-FunctionAssertSuccess {hello, world}   hello world!   Success
 This output is an array of the powershell class `PSTestResult`. This output is capturable with a variable for further diagnosis or analysis.
 
 ```Powershell
-PS C:\PSTest> $Results = .\PSTestX -Path .\Tests -FullDump $true
+PS C:\PSTest> $Results = .\PSTestX -Path .\Tests -FullDump
 
 Success: 6 | Failure: 2 | Total: 8 | Runtime: (1)s (700)ms
 ```
@@ -176,7 +176,7 @@ More information on how to parse this output can be found in the class descripti
 
 ### Optional parameters for `PSTestX`
 
-#### `-FullDump` << [bool]
+#### `-FullDump` << [switch]
 This will output the full set of test results to the pipeline. Without it, only the summary output will be provided. This switch is required if you want to parse the full output of the test.
 
 #### `-TestPath` << [string]
