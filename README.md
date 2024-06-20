@@ -1,8 +1,8 @@
 # PSTest
-Module testing framework for Powershell functions and cmdlets. Writen natively in Powershell for maximum compatiblity.
+Module testing framework for Powershell functions and cmdlets. Written natively in Powershell for maximum compatibility.
 
 > **Note**
-> Currently, only Powershell Core is supported. However, a backwards compatible version with Legacy Powershell will be comming soon. As of now, Powershell Core is required to run this framework. [See Upcomming Changes for more info.](#upcomming-changes)
+> Currently, only Powershell Core is supported. However, a backwards compatible version with Legacy Powershell will be coming soon. As of now, Powershell Core is required to run this framework. [See Upcoming Changes for more info.](#upcomming-changes)
 
 # How does it work?
 This framework has two components:
@@ -84,7 +84,7 @@ using module PSTestLib
 function Test-FunctionFail {
     [PSTest(("hello", "world"))]
     [PSTest(("hello", "mars"), {$r -eq "hello world!"})]
-    # Optional varient using named parameters.
+    # Optional variant using named parameters.
     # [PSTest(IArgs=("hello", "mars"),Assert={$r -eq "hello world!"})]
     param(
         [string]$var1,
@@ -99,7 +99,7 @@ In the example above, we use `{$r -eq "hello world!"}` as the assertion argument
 
 ### `AssertVar`
 
-Following the above named parameter `Assert`, `AssertVar` allows you to set a custom variable that would be used in the assertion statments.
+Following the above named parameter `Assert`, `AssertVar` allows you to set a custom variable that would be used in the assertion statements.
 
 ```Powershell
 using module PSTestLib
@@ -107,7 +107,7 @@ using module PSTestLib
 function Test-FunctionFail {
     [PSTest(("hello", "world"))]
     [PSTest(("hello", "mars"), {$altname -eq "hello world!"}, '$altname')]
-    # Optional varient using named parameters.
+    # Optional variant using named parameters.
     # [PSTest(IArgs=("hello", "mars"),Assert={$r -eq "hello world!"},AssertVar='$altname')]
     param(
         [string]$var1,
@@ -123,9 +123,9 @@ Value should be contained in single-quotes `''` to avoid creating a formatted st
 
 > In the below examples, we will use the Powershell script file to execute the test. However, if you install the module and script via Nuget/Powershell Gallery you can use PSTest via the PATH alias `PSTestX`.
 >
-> **Fun fact**: The script is called PSTestX because Powershell gallery would not let me use PSTest. I could not find a package on the gallery of the same name, but pivotted to PSTestX out of frustration. 
+> **Fun fact**: The script is called PSTestX because Powershell gallery would not let me use PSTest. I could not find a package on the gallery of the same name, but pivoted to PSTestX out of frustration. 
 
-## Excuting Rests
+## Executing Rests
 
 In Powershell Core; we use the pre-packaged test modules under `.\Tests` to test using PSTest.
 ```
@@ -168,7 +168,7 @@ PS C:path\to\PSTest> $FailResult = $Results | where-object {$_ -eq [ResultType]:
 Exception: Test-Failure-Output
 ```
 
-This output is helpful, but only to an extent. If you need more percision, you can convert this output to a Json String for easy viewing.
+This output is helpful, but only to an extent. If you need more precision, you can convert this output to a Json String for easy viewing.
 ```Powershell
 PS C:path\to\PSTest> $FailResult.Result | ConvertTo-Json
 
@@ -204,7 +204,7 @@ This will filter what files are checked for `[PSTest()]` attribute.
 You will need to define the input as a pattern. The default extension is `*.psm1`. However, if the target needed to be a script file, `*.ps1`. This can be used to your advantage if you only want to test one file. Instead of a patter, just provide the fully qualified path to the file. Example: `-TestExtension /path/to/test.psm1`.
 
 
-## Upcomming changes
+## Upcoming changes
 
 - Parallel Test execution.
 - Backwards compatibility for Legacy Powershell (< 5.1) and .Net Framework (< 4.0).
